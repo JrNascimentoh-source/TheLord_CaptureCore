@@ -29,8 +29,8 @@ Gerenciar várias telas simultaneamente, mantendo cada instância isolada por pl
 
 | Plataforma | Identificação exibida | Chave lógica |
 |---|---|---|
-| 7a7 | Aviator | `aviator` |
-| BetDoPovo | Aviator | `aviator2` |
+| 7a7 | **Aviator** | `aviator` |
+| BetDoPovo | **Aviator (BetDoPovo)** | `aviator2` |
 
 ## Estrutura
 
