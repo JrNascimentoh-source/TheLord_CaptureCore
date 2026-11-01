@@ -74,7 +74,7 @@ Depois abra o endereço local informado pelo servidor. Para testar o userscript 
 
 - [x] Dashboard responsivo e cadastro de instâncias.
 - [x] Identificador individual por tela.
-- [x] Mapeamento das três combinações plataforma/jogo.
+- [x] Mapeamento das duas combinações plataforma/jogo.
 - [x] Abertura do jogo em janela vinculada à instância.
 - [x] Bridge com validação da janela que originou a mensagem.
 - [x] Universal Collector separado, com heartbeat e eventos de rodada.
