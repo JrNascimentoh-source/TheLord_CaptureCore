@@ -1,19 +1,23 @@
 (function(){
  var toggle=document.getElementById('sidebarToggle'),KEY='thelord-capturecore-sidebar-collapsed',collapsed=false;
  try{collapsed=localStorage.getItem(KEY)==='1'}catch(_){}
- function apply(){
+ function applySidebar(){
   document.body.classList.toggle('sidebar-collapsed',collapsed);
   if(!toggle)return;
   var label=collapsed?'Expandir barra de navegação':'Recolher barra de navegação';
   toggle.textContent=collapsed?'›':'‹';toggle.setAttribute('aria-expanded',String(!collapsed));toggle.setAttribute('aria-label',label);toggle.title=label;
  }
- if(toggle)toggle.addEventListener('click',function(){collapsed=!collapsed;apply();try{localStorage.setItem(KEY,collapsed?'1':'0')}catch(_){}});
- apply();
+ if(toggle)toggle.addEventListener('click',function(){collapsed=!collapsed;applySidebar();try{localStorage.setItem(KEY,collapsed?'1':'0')}catch(_){}});
+ applySidebar();
  var links=[].slice.call(document.querySelectorAll('.bottom .nav'));
- function setActive(id){links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+id)})}
- links.forEach(function(a){a.addEventListener('click',function(){setActive(a.getAttribute('href').slice(1))})});
- if('IntersectionObserver' in window){
-  var io=new IntersectionObserver(function(list){list.forEach(function(e){if(e.isIntersecting)setActive(e.target.id)})},{rootMargin:'-35% 0px -55% 0px'});
-  ['dashboard','instances','game-screens','saved-configs','activity'].forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el)});
+ var sections=[].slice.call(document.querySelectorAll('main > section.card'));
+ function showSection(id,updateHash){
+  if(!sections.some(function(section){return section.id===id}))id='dashboard';
+  sections.forEach(function(section){section.hidden=section.id!==id;});
+  links.forEach(function(link){var active=link.getAttribute('href')==='#'+id;link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+  if(updateHash&&location.hash!=='#'+id)history.replaceState(null,'','#'+id);
  }
+ window.captureCoreShowSection=function(id){showSection(id,true);};
+ links.forEach(function(link){link.addEventListener('click',function(event){event.preventDefault();showSection(link.getAttribute('href').slice(1),true);});});
+ showSection('dashboard',false);
 })();
