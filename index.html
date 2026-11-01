@@ -1,10 +1,45 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#070509"><meta name="description" content="Central independente de captura e monitoramento de múltiplas telas."><title>TheLord_CaptureCore</title><link rel="stylesheet" href="styles.css"><script type="module" src="src/app.js"></script></head>
-<body><div class="shell">
-<aside class="sidebar"><a class="brand" href="#"><span class="brand-mark">◈</span><span><b>TheLord</b><small>CAPTURE CORE</small></span></a><div class="side-label">CENTRAL DE CAPTURA</div><nav class="side-nav"><a class="nav-item active" href="#dashboard">▦　Painel geral</a><a class="nav-item" href="#instances">▣　Instâncias</a><a class="nav-item" href="#activity">⌁　Atividade</a></nav><div class="sidebar-bottom"><i class="status-dot idle"></i><span><b>Motor de captura</b><small id="engine-status">Aguardando configuração</small></span></div></aside>
-<main class="main" id="dashboard"><header class="topbar"><div><div class="eyebrow">THELORD SYSTEMS / CAPTURE</div><h1>Painel de captura</h1><p class="muted">Gerencie telas e coletores em um único lugar.</p></div><div class="top-actions"><a class="button secondary" href="https://raw.githubusercontent.com/JrNascimentoh-source/TheLord_CaptureCore/main/collector/TheLord_CaptureCore-Universal-Collector.user.js" target="_blank" rel="noopener">⇩ Instalar coletor</a><button class="button primary" id="add-instance">＋ Nova instância</button></div></header>
-<section class="metrics"><article class="metric-card"><span class="metric-label">INSTÂNCIAS</span><strong id="metric-total">0</strong><small>cadastradas</small></article><article class="metric-card"><span class="metric-label">ONLINE</span><strong class="green" id="metric-online">0</strong><small>com sinal recente</small></article><article class="metric-card"><span class="metric-label">OFFLINE</span><strong class="red" id="metric-offline">0</strong><small>sem sinal recente</small></article><article class="metric-card"><span class="metric-label">JOGOS</span><strong id="metric-games">0</strong><small>tipos configurados</small></article></section>
-<section class="section-block" id="instances"><div class="section-heading"><div><h2>Instâncias monitoradas</h2><p class="muted">Cada tela mantém sua própria identificação e estado.</p></div><span class="subtle-tag" id="instance-count">0 INSTÂNCIAS</span></div><div class="instance-grid" id="instance-list"><div class="empty-state"><span class="empty-icon">▣</span><b>Nenhuma instância cadastrada</b><p>Adicione a primeira tela para iniciar a configuração do CaptureCore.</p><button class="button secondary" id="empty-add">＋ Adicionar tela</button></div></div></section>
-<section class="section-block activity-block" id="activity"><div class="section-heading"><div><h2>Atividade recente</h2><p class="muted">Eventos locais desta sessão.</p></div></div><div class="activity-list" id="activity-list"><p class="activity-empty">Nenhuma atividade registrada.</p></div></section><footer class="footer-note">TheLord_CaptureCore <span>•</span> Fundação inicial do sistema</footer></main></div>
-<dialog class="modal" id="instance-modal"><form id="instance-form" method="dialog"><div class="modal-heading"><div><div class="eyebrow">NOVA CONFIGURAÇÃO</div><h2>Adicionar instância</h2></div><button class="icon-button" type="button" id="close-modal">×</button></div>
-<label>Plataforma<select id="platform" required><option value="7a7">7a7</option><option value="betdopovo">BetDoPovo</option></select></label><label>Jogo<select id="game" required><option value="aviator">Aviator</option><option value="aviator2">Aviator</option><option value="aviatorvip">Aviator VIP</option></select></label><label>Identificação da tela<input id="screen-name" maxlength="48" placeholder="Ex.: Tela principal" required></label><label>URL de origem<input id="source-url" type="url" placeholder="https://..." required></label><p class="form-hint">Instale o userscript pelo botão “Instalar coletor”. Depois de cadastrar a tela, use “Abrir jogo e coletar” para iniciar a captura vinculada a esta instância. Os dados desta versão ficam neste navegador; a sincronização Supabase será adicionada depois.</p><div class="modal-actions"><button class="button secondary" type="button" id="cancel-modal">Cancelar</button><button class="button primary" type="submit">Criar instância</button></div><p class="form-error" id="form-error" role="alert"></p></form></dialog></body></html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#070509"><meta name="description" content="Central independente de captura e monitoramento de múltiplas telas."><title>TheLord_CaptureCore</title><link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png"><link rel="icon" type="image/png" sizes="48x48" href="assets/favicon-48.png"><link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180.png"><link rel="manifest" href="manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="CaptureCore"><link rel="stylesheet" href="styles.css"><script type="module" src="src/app.js"></script><script src="src/ui.js" defer></script></head>
+<body>
+<div class="app">
+<header class="header">
+<img class="logo" src="assets/logo.svg" alt="TheLord CaptureCore" width="64" height="64">
+<div class="header-main"><div class="eyebrow">TheLord Systems / Capture</div><h1>TheLord_CaptureCore</h1><div class="subtitle">Central de captura de telas e coletores</div></div>
+<div class="header-status"><i class="status-dot idle"></i><span><b>Motor de captura</b><small id="engine-status">Aguardando configuração</small></span></div>
+</header>
+<main>
+<section class="card" id="dashboard">
+<h2 class="title">Painel de captura</h2>
+<p class="muted">Gerencie telas e coletores em um único lugar.</p>
+<div class="top-actions">
+<a class="button secondary" href="https://raw.githubusercontent.com/JrNascimentoh-source/TheLord_CaptureCore/main/collector/TheLord_CaptureCore-Universal-Collector.user.js" target="_blank" rel="noopener"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-4-4 4 4 4-4M5 20h14"/></svg>Instalar coletor</a>
+<button class="button primary cta" id="add-instance" type="button"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nova instância</button>
+</div>
+<div class="metrics">
+<article class="metric-card"><span class="metric-label">Instâncias</span><strong id="metric-total">0</strong><small>cadastradas</small></article>
+<article class="metric-card"><span class="metric-label">Online</span><strong class="green" id="metric-online">0</strong><small>com sinal recente</small></article>
+<article class="metric-card"><span class="metric-label">Offline</span><strong class="red" id="metric-offline">0</strong><small>sem sinal recente</small></article>
+<article class="metric-card"><span class="metric-label">Jogos</span><strong id="metric-games">0</strong><small>tipos configurados</small></article>
+</div>
+</section>
+<section class="card" id="instances">
+<div class="section-heading"><div><h2 class="title">Instâncias monitoradas</h2><p class="muted">Cada tela mantém sua própria identificação e estado.</p></div><span class="subtle-tag" id="instance-count">0 instâncias</span></div>
+<div class="instance-grid" id="instance-list"><div class="empty-state"><span class="empty-icon">▣</span><b>Nenhuma instância cadastrada</b><p>Adicione a primeira tela para iniciar a configuração do CaptureCore.</p><button class="button secondary" id="empty-add" type="button">＋ Adicionar tela</button></div></div>
+</section>
+<section class="card" id="activity">
+<div class="section-heading"><div><h2 class="title">Atividade recente</h2><p class="muted">Eventos locais desta sessão.</p></div></div>
+<div class="activity-list" id="activity-list"><p class="activity-empty">Nenhuma atividade registrada.</p></div>
+</section>
+</main>
+<footer class="footer-note">TheLord_CaptureCore <span>•</span> Fundação inicial do sistema</footer>
+</div>
+<nav class="bottom" id="appSidebar" aria-label="Navegação principal">
+<button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Recolher barra de navegação" aria-expanded="true" title="Recolher barra">‹</button>
+<div class="sidebar-brand"><img src="assets/logo.svg" alt="" width="30" height="30"><span>TheLord_CaptureCore</span></div>
+<a class="nav active" href="#dashboard" data-tooltip="Painel geral"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="nav-label">Painel</span></a>
+<a class="nav" href="#instances" data-tooltip="Instâncias"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span class="nav-label">Instâncias</span></a>
+<a class="nav" href="#activity" data-tooltip="Atividade"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span class="nav-label">Atividade</span></a>
+</nav>
+<dialog class="modal" id="instance-modal"><form id="instance-form" method="dialog"><div class="modal-heading"><div><div class="eyebrow">Nova configuração</div><h2>Adicionar instância</h2></div><button class="icon-button" type="button" id="close-modal" aria-label="Fechar">×</button></div>
+<label>Plataforma<select id="platform" required><option value="7a7">7a7</option><option value="betdopovo">BetDoPovo</option></select></label><label>Jogo<select id="game" required><option value="aviator">Aviator</option><option value="aviator2">Aviator (BetDoPovo)</option><option value="aviatorvip">Aviator VIP</option></select></label><label>Identificação da tela<input id="screen-name" maxlength="48" placeholder="Ex.: Tela principal" required></label><label>URL de origem<input id="source-url" type="url" placeholder="https://..." required></label><p class="form-hint">Instale o userscript pelo botão “Instalar coletor”. Depois de cadastrar a tela, use “Abrir jogo e coletar” para iniciar a captura vinculada a esta instância. Os dados desta versão ficam neste navegador; a sincronização Supabase será adicionada depois.</p><div class="modal-actions"><button class="button secondary" type="button" id="cancel-modal">Cancelar</button><button class="button primary" type="submit">Criar instância</button></div><p class="form-error" id="form-error" role="alert"></p></form></dialog>
+</body></html>

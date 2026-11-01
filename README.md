@@ -37,10 +37,17 @@ Gerenciar várias telas simultaneamente, mantendo cada instância isolada por pl
 ```
 index.html
 styles.css
+assets/
+  logo.svg
+  emblema-capturecore.png
+  icon-*.png
+  favicon-*.png
+manifest.webmanifest
 collector/
   TheLord_CaptureCore-Universal-Collector.user.js
 src/
   app.js
+  ui.js
   core/
     instance-store.js
     platform-registry.js
@@ -87,3 +94,7 @@ Depois abra o endereço local informado pelo servidor. Para testar o userscript 
 - Não coloque chaves privilegiadas no frontend ou no userscript.
 
 Consulte [docs/architecture.md](docs/architecture.md) e [docs/supabase-integration.md](docs/supabase-integration.md) para as decisões técnicas.
+
+## Identidade visual
+
+O painel segue a família visual do TheLord_Aviator e do TheLord_Delay_2.0: fundo escuro, anel vermelho com brilho, dourado como destaque, menu inferior no celular e barra lateral recolhível no desktop. O ícone do app é o emblema dourado (`assets/emblema-capturecore.png`, com versões em `assets/icon-*.png` e `assets/favicon-*.png`) e o `manifest.webmanifest` permite instalar o painel na tela inicial. O logo do cabeçalho (visor com losango) está em `assets/logo.svg` e o script de interface (menu recolhível e item ativo) em `src/ui.js`; a lógica de captura em `src/app.js` não foi alterada.
