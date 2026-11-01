@@ -54,3 +54,5 @@ $("#instance-list").addEventListener("click",event=>{
  store.remove(item.id);log("Instância removida: "+item.screenName);render();
 });
 bridge.connect();bridge.onCollectorEvent(onCollectorEvent);render();
+// Expira o status online quando o coletor deixa de emitir sinais.
+setInterval(()=>{let changed=false;for(const item of store.list()){if(item.status==="online"&&!bridge.isFresh(item.lastSeenAt)){store.updateStatus(item.id,"offline",item.lastSeenAt);changed=true;}}if(changed)render();},15000);
