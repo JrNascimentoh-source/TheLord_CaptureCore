@@ -24,6 +24,11 @@ jobs:
           node-version: 22
       - name: Run tests
         run: npm test
+      - name: Check JavaScript syntax
+        run: |
+          node --check src/app.js
+          node --check src/adapters/collector-bridge.js
+          node --check collector/TheLord_CaptureCore-Universal-Collector.user.js
   deploy:
     if: github.event_name != 'pull_request'
     environment:
