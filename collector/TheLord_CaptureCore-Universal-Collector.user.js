@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         TheLord CaptureCore — Universal Collector
 // @namespace    thelord-capturecore
-// @version      0.2.3
-// @description  Identifica Aviator 7a7, Aviator BdPv ou Aviator VIP, inclusive dentro dos frames Spribe, e envia eventos ao CaptureCore
+// @version      0.2.4
+// @description  Identifica Aviator 7a7 e Aviator BdPv, inclusive dentro dos frames Spribe, e envia eventos ao CaptureCore
 // @match        *://*/*
 // @exclude      *://jrnascimentoh-source.github.io/*
 // @exclude      *://*.jrnascimentoh-source.github.io/*
@@ -37,7 +37,7 @@
     const parsed = parseUrl(value);
     if (!parsed) return 'aviator';
     if (isBetDoPovoUrl(value)) {
-      return parsed.searchParams.get('via') === '4' ? 'aviatorvip' : 'aviator2';
+      return 'aviator2';
     }
     if (is7a7Url(value)) return 'aviator';
     // Mantém o fallback do fluxo atual para páginas intermediárias/frames Spribe.
@@ -139,8 +139,8 @@
     return new Promise(resolve => {
       if (IS_ROOT) return resolve(gameFromUrl(SELF_URL));
 
-      // Dá prioridade ao URL da página principal: ele distingue também o VIP
-      // quando o iframe interno não recebe o parâmetro via=4.
+      // Dá prioridade ao URL da página principal para identificar a plataforma
+      // mesmo quando o iframe interno não recebe a URL original.
       const started = Date.now();
       const wait = setInterval(() => {
         if (topUrl) {
@@ -160,9 +160,7 @@
   resolveGame().then(start);
 
   function start(GAME) {
-    const GAME_LABEL = GAME === 'aviatorvip'
-      ? 'Aviator VIP'
-      : GAME === 'aviator2' ? 'Aviator BdPv' : 'Aviator 7a7';
+    const GAME_LABEL = GAME === 'aviator2' ? 'Aviator BdPv' : 'Aviator 7a7';
     const host = location.hostname;
     const signatureKey = 'thelord_capturecore_signature_v1_' + (instanceId || 'unlinked');
 
