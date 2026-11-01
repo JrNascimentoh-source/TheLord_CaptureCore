@@ -19,7 +19,7 @@ Sistema independente de captura, gerenciamento e monitoramento de múltiplas tel
 3. Acesse o painel CaptureCore, cadastre uma instância com plataforma, jogo, nome da tela e URL.
 4. Clique em **Abrir jogo e coletar**. O painel abre a página com o identificador daquela instância.
 5. Para reutilizar a tela depois, clique em **Salvar configuração** no cartão da instância. Abra **Salvas** na navegação e use **Iniciar tela**.
-5. O coletor envia heartbeat e resultados ao painel que abriu aquela janela. O status só fica Online após receber sinal real.
+5. O coletor envia heartbeat e resultados ao painel que abriu aquela tela. Se a plataforma bloquear a incorporação em iframe, use **Abrir em janela externa** no cartão da tela. O status só fica Online após receber sinal real.
 
 ## Objetivo
 
