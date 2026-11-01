@@ -87,9 +87,13 @@
       return;
     }
 
-    if (IS_ROOT && data.type === FRAME_EVENT &&
+    if (data.type === FRAME_EVENT &&
         typeof data.instanceId === 'string' && data.instanceId === instanceId) {
-      sendToDashboard(data.kind, data.data);
+      // Cada nível de iframe retransmite o evento até a página principal vinculada.
+      if (IS_ROOT) sendToDashboard(data.kind, data.data);
+      else {
+        try { window.parent.postMessage(data, '*'); } catch (_) {}
+      }
     }
   });
 
