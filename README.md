@@ -45,7 +45,8 @@ Depois abra o endereço local informado pelo servidor.
 - [x] Mapeamento explícito das três combinações plataforma/jogo.
 - [x] Identificador individual por instância.
 - [x] Contrato inicial de heartbeat.
-- [ ] Adaptador do Universal Collector.
+- [x] Testes automatizados para o catálogo de plataformas e jogos.
+- [ ] Adaptador do Universal Collector (próxima etapa).
 - [ ] Teste real com múltiplas telas.
 - [ ] Adaptador de persistência para o Supabase existente.
 - [ ] Autenticação e sincronização multiusuário.
