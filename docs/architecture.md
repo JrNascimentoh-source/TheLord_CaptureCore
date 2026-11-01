@@ -1,7 +1,7 @@
 # Arquitetura — TheLord_CaptureCore
 
 ## Objetivo
-Centralizar múltiplas telas e instâncias de coletores sem acoplar o painel ao código específico de cada jogo. O CaptureCore é independente; o TheLord_Aviator permanece como consumidor dos dados e não será alterado por esta implementação.
+Centralizar múltiplas telas e instâncias de coletores sem acoplar o painel ao código específico de cada jogo. O CaptureCore é independente; o TheLord_Aviator continua sendo o consumidor do histórico compartilhado, usando chaves técnicas estáveis e rótulos próprios para cada plataforma.
 
 ## Componentes
 - **Dashboard:** visão operacional das instâncias, status, última vela e atividade.
@@ -16,8 +16,8 @@ Cada instância recebe um `id` próprio, além de `platformId`, `gameId`, `scree
 
 | Plataforma | Jogo na interface | Chave lógica |
 |---|---|---|
-| 7a7 | Aviator | `aviator` |
-| BetDoPovo | Aviator | `aviator2` |
+| 7a7 | **Aviator** | `aviator` |
+| BetDoPovo | **Aviator (BetDoPovo)** | `aviator2` |
 
 ## Fluxo de captura nesta etapa
 1. O usuário cadastra uma instância no dashboard.
