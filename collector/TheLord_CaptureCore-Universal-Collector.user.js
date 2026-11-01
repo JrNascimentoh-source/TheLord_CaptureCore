@@ -27,7 +27,7 @@
   function parseUrl(value) { try { return new URL(value); } catch (_) { return null; } }
   function isBetDoPovoUrl(value) {
     const parsed = parseUrl(value);
-    return !!parsed && /(^|\\.)betdopovo\\./i.test(parsed.hostname);
+    return !!parsed && /(^|\.)betdopovo\./i.test(parsed.hostname);
   }
   function gameFromUrl(value) {
     const parsed = parseUrl(value);
@@ -134,16 +134,16 @@
     if (IS_TOP) { showBadge(); setInterval(showBadge, 2000); }
 
     function parseMultiplier(text) {
-      let raw = String(text || '').trim().replace(/[x×]$/i, '').replace(/\\s/g, '');
-      if (!/^\\d[\\d.,]*$/.test(raw)) return NaN;
+      let raw = String(text || '').trim().replace(/[x×]$/i, '').replace(/\s/g, '');
+      if (!/^\d[\d.,]*$/.test(raw)) return NaN;
       const dot = raw.lastIndexOf('.');
       const comma = raw.lastIndexOf(',');
       if (dot >= 0 && comma >= 0) {
         const decimal = dot > comma ? '.' : ',';
         raw = raw.split(decimal === '.' ? ',' : '.').join('').replace(decimal, '.');
       } else if (comma >= 0) {
-        raw = /^\\d{1,3}(,\\d{3})+$/.test(raw) ? raw.replace(/,/g, '') : raw.replace(',', '.');
-      } else if (/^\\d{1,3}(\\.\\d{3})+$/.test(raw)) raw = raw.replace(/\\./g, '');
+        raw = /^\d{1,3}(,\d{3})+$/.test(raw) ? raw.replace(/,/g, '') : raw.replace(',', '.');
+      } else if (/^\d{1,3}(\.\d{3})+$/.test(raw)) raw = raw.replace(/\./g, '');
       return Number(raw);
     }
     function read() {
@@ -155,7 +155,7 @@
       if (!elements.length) {
         const candidates = [...document.querySelectorAll('div,span')].filter(element =>
           element.children.length === 0 &&
-          /^\\s*\\d[\\d.,\\s]*[x×]\\s*$/i.test(element.textContent || '') &&
+          /^\s*\d[\d.,\s]*[x×]\s*$/i.test(element.textContent || '') &&
           Number.isFinite(parseMultiplier(element.textContent))
         );
         if (candidates.length >= 3) {
