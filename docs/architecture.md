@@ -24,7 +24,7 @@ Cada instância recebe um `id` próprio, além de `platformId`, `gameId`, `scree
 1. O usuário cadastra uma instância no dashboard.
 2. Ao clicar em **Abrir jogo e coletar**, o painel abre a URL em uma nova janela, acrescentando `_capturecore_instance` e `_capturecore_origin`.
 3. O Universal Collector instalado via Tampermonkey lê a identidade da instância e identifica o jogo, preservando o parâmetro `via=4` do VIP.
-4. Em páginas com iframes, os frames encaminham eventos ao frame superior; o frame superior encaminha ao painel por `window.opener.postMessage`, com o origin exato do dashboard.
+4. O jogo pode ser aberto em iframe quando a plataforma permite incorporação; se a plataforma bloquear iframe, o painel oferece abertura em janela externa vinculada. No modo iframe, os frames encaminham eventos ao frame superior e este ao painel por `window.parent.postMessage`; no modo janela externa, o coletor usa `window.opener.postMessage`. Ambos validam o origin exato do dashboard.
 5. O bridge só aceita eventos se `event.source` for exatamente a janela que o próprio painel registrou para aquele `instanceId`.
 6. Heartbeats atualizam Online/Off-line; eventos `round` atualizam o último resultado e o contador local daquela instância.
 
@@ -47,7 +47,7 @@ O status expira após 120 segundos sem sinal. Abrir uma URL não significa que o
 }
 ```
 
-O bridge aceita apenas os tipos `heartbeat` e `round`, exige uma instância registrada e compara a referência da janela de origem. O origin de destino do userscript é fixo para o GitHub Pages do CaptureCore. Isso reduz mensagens cruzadas entre janelas, mas não substitui autenticação no servidor.
+O bridge aceita apenas os tipos `heartbeat` e `round`, exige uma instância registrada e compara a referência da janela de origem. O origin de destino do userscript é fixo para o GitHub Pages do CaptureCore. Isso reduz mensagens cruzadas entre janelas, mas não substitui autenticação no servidor. O painel registra a referência da janela/iframe vinculada à instância e aceita somente mensagens dessa origem.
 
 ## Persistência
 A configuração das instâncias e os resumos de última vela/contagem ficam no `localStorage` do navegador do painel. Essa camada é provisória e não sincroniza entre computadores. A relação entre janela de abertura e janela de jogo também é mantida em memória; recarregar o dashboard exige abrir novamente os jogos para reestabelecer o vínculo.
