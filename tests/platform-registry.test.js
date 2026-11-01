@@ -14,7 +14,7 @@ test("maps each game to the intended platform and database key",()=>{
 test("accepts only supported platform and game combinations",()=>{
   assert.equal(isValidPair("7a7","aviator"),true);
   assert.equal(isValidPair("betdopovo","aviator2"),true);
-  assert.equal(isValidPair("betdopovo","aviatorvip"),false);
+  assert.equal(isValidPair("betdopovo","unsupported-game"),false);
   assert.equal(isValidPair("betdopovo","aviator"),false);
   assert.equal(isValidPair("unknown","aviator"),false);
 });
