@@ -139,11 +139,8 @@
     return new Promise(resolve => {
       if (IS_ROOT) return resolve(gameFromUrl(SELF_URL));
 
-      // Se o próprio frame for a origem, respeita também o parâmetro VIP.
-      if (isBetDoPovoUrl(SELF_URL)) return resolve(gameFromUrl(SELF_URL));
-      if (is7a7Url(SELF_URL)) return resolve('aviator');
-
-      // Usa o URL real da página principal, propagado pelo frame superior.
+      // Dá prioridade ao URL da página principal: ele distingue também o VIP
+      // quando o iframe interno não recebe o parâmetro via=4.
       const started = Date.now();
       const wait = setInterval(() => {
         if (topUrl) {
@@ -152,7 +149,9 @@
         } else if (Date.now() - started > 4000) {
           clearInterval(wait);
           const referrer = document.referrer || '';
-          resolve(isBetDoPovoUrl(referrer) ? gameFromUrl(referrer) : 'aviator');
+          if (isBetDoPovoUrl(SELF_URL)) resolve(gameFromUrl(SELF_URL));
+          else if (isBetDoPovoUrl(referrer)) resolve(gameFromUrl(referrer));
+          else resolve('aviator');
         }
       }, 200);
     });
