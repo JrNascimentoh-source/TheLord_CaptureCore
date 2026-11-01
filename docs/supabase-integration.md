@@ -1,7 +1,7 @@
 # Integração Supabase — inspeção inicial
 
 **Projeto inspecionado:** `aypjaqmmlurlqeotbepp` (projeto Supabase existente).  
-**Escopo desta inspeção:** somente leitura. Nenhuma tabela, política, chave ou configuração foi alterada.
+**Escopo:** inspeção do schema e ajuste posterior da política de inserção para manter apenas os jogos ativos.
 
 ## Schema observado
 
@@ -14,7 +14,7 @@
 - Índices observados: chave primária em `id` e índice `velas_created_idx` em `created_at DESC`.
 
 Políticas observadas:
-- INSERT para `public`, limitado a valores entre 1 e 1.000.000 e aos jogos `aviator`, `aviator2`, `aviatorvip`.
+- INSERT para `public`, limitado a valores entre 1 e 1.000.000 e aos jogos `aviator`, `aviator2` e a chave histórica `betdopovo`.
 - SELECT para `public`, com condição `true`.
 
 ### `public.gestoes`
@@ -40,7 +40,7 @@ Antes de criar tabelas ou políticas, ainda precisamos fechar como cada instânc
 ## Não fazer
 
 - Não adicionar registros de várias telas à tabela `velas` atual sem isolamento por instância.
-- Não alterar políticas existentes de `velas` ou `gestoes` como parte da fundação.
+- A política de INSERT de `velas` foi ajustada para aceitar `aviator`, `aviator2` e a chave histórica `betdopovo`; a política de SELECT e a tabela `gestoes` permanecem inalteradas.
 - Não executar o arquivo histórico `velas.sql` do repositório como migração do banco atual.
 - Não colocar credenciais privilegiadas no frontend ou no userscript.
 
