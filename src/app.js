@@ -1,6 +1,6 @@
-import {InstanceStore} from "./core/instance-store.js";
+import {InstanceStore} from "./core/instance-store.js?v=20261101-bdpv-only";
 import {SavedConfigStore} from "./core/saved-config-store.js";
-import {GAMES,PLATFORMS,isValidPair} from "./core/platform-registry.js";
+import {GAMES,PLATFORMS,isValidPair} from "./core/platform-registry.js?v=20261101-bdpv-only";
 import {CollectorBridge} from "./adapters/collector-bridge.js";
 const store=new InstanceStore(), savedStore=new SavedConfigStore(), bridge=new CollectorBridge(), screenFrames=new Map(), screenWindows=new Map(), $=s=>document.querySelector(s), activity=[];
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
