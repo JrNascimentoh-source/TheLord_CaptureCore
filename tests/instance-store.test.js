@@ -29,7 +29,7 @@ test("creates separate instances and records rounds per instance",()=>{
 test("rejects unsupported games and invalid captured values",()=>{
   installStorage();
   const store=new InstanceStore();
-  assert.throws(()=>store.create({platformId:"betdopovo",gameId:"aviatorvip",screenName:"Tela inválida",sourceUrl:"https://example.com/game"}));
+  assert.throws(()=>store.create({platformId:"betdopovo",gameId:"unsupported-game",screenName:"Tela inválida",sourceUrl:"https://example.com/game"}));
   const item=store.create({platformId:"betdopovo",gameId:"aviator2",screenName:"Tela 2",sourceUrl:"https://example.com/game"});
   assert.equal(store.recordRound(item.id,{value:0}),null);
   assert.equal(store.recordRound(item.id,{value:1000000}),null);
