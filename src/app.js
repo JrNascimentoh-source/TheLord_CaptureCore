@@ -117,5 +117,8 @@ $("#instance-list").addEventListener("click",event=>{
  if(!item||!confirm('Remover a instância "'+item.screenName+'" deste navegador?'))return;
  closeScreen(item.id);store.remove(item.id);log("Instância removida: "+item.screenName);render();
 });
-bridge.connect();bridge.onCollectorEvent(onCollectorEvent);render();renderSavedConfigs();
+bridge.connect();bridge.onCollectorEvent(onCollectorEvent);bridge.onDiagnostic(detail=>{
+ const messages={origin:"Sinal do coletor rejeitado: domínio de origem diferente do cadastrado ("+detail.receivedOrigin+"; esperado "+detail.expectedOrigin+").",window:"Sinal recebido de uma janela diferente da tela registrada.",instance:"Sinal recebido com identificador de instância não registrado.",payload:"Sinal do coletor recebido com formato inválido."};
+ log(messages[detail.reason]||"Falha na validação do sinal do coletor.");
+});render();renderSavedConfigs();
 setInterval(()=>{let changed=false;for(const item of store.list()){if(item.status==="online"&&!bridge.isFresh(item.lastSeenAt)){store.updateStatus(item.id,"offline",item.lastSeenAt);changed=true;}}if(changed)render();},15000);
