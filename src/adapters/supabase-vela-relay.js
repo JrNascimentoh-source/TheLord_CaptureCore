@@ -27,7 +27,7 @@ export class SupabaseVelaRelay{
       return {ok:false,reason:"invalid-payload"};
     }
     const queue=readQueue(this.storage);
-    queue.push({game,value:numeric,created_at:Number.isFinite(Date.parse(detectedAt))?new Date(detectedAt).toISOString():new Date().toISOString()});
+    queue.push({id:(globalThis.crypto?.randomUUID?.()||("round-"+Date.now()+"-"+Math.random().toString(16).slice(2))),game,value:numeric,created_at:Number.isFinite(Date.parse(detectedAt))?new Date(detectedAt).toISOString():new Date().toISOString()});
     if(!this.save(queue))return {ok:false,reason:"queue-storage"};
     return this.flush();
   }
@@ -37,8 +37,9 @@ export class SupabaseVelaRelay{
     this.sending=true;
     let sent=0;
     try{
-      let queue=readQueue(this.storage);
-      while(queue.length){
+      while(true){
+        const queue=readQueue(this.storage);
+        if(!queue.length)break;
         const item=queue[0];
         let response;
         try{
@@ -54,8 +55,10 @@ export class SupabaseVelaRelay{
           });
         }catch{return {ok:false,reason:"network",sent};}
         if(!response?.ok)return {ok:false,reason:"http-"+(response?.status||"unknown"),sent};
-        queue.shift();
-        if(!this.save(queue))return {ok:false,reason:"queue-storage",sent};
+        const latestQueue=readQueue(this.storage);
+        const queuedIndex=latestQueue.findIndex(entry=>entry.id===item.id);
+        if(queuedIndex>=0)latestQueue.splice(queuedIndex,1);
+        if(!this.save(latestQueue))return {ok:false,reason:"queue-storage",sent};
         sent++;
       }
       return {ok:true,sent};
