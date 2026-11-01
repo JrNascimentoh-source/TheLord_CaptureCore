@@ -132,7 +132,7 @@
     focusStyle.textContent = [
       'html,body{width:100%!important;height:100%!important;min-height:100%!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#000!important}',
       'body.capturecore-game-focus>*:not([data-capturecore-game-path]){display:none!important}',
-      '[data-capturecore-game-path="1"]{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;transform:none!important;z-index:1!important}',
+      'body>[data-capturecore-game-root="1"]{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;transform:none!important;z-index:1!important}',
       '[data-capturecore-game-path="1"] canvas{max-width:100%!important;max-height:100%!important}'
     ].join('');
     (document.head || document.documentElement).appendChild(focusStyle);
@@ -167,12 +167,13 @@
       // Não aplicar se o canvas estiver dentro de um iframe ou de um componente minúsculo.
       const rect = gameCanvas.getBoundingClientRect();
       if (rect.width < 240 || rect.height < 140) return;
-      path.forEach((element, index) => {
+      path.forEach((element) => {
         [...element.parentElement.children].forEach(sibling => {
           if (sibling !== element) sibling.style.setProperty('display','none','important');
         });
         element.dataset.capturecoreGamePath = '1';
       });
+      path[path.length - 1].dataset.capturecoreGameRoot = '1';
       document.body.classList.add('capturecore-game-focus');
       focusApplied = true;
       if (badge?.isConnected) badge.remove();
