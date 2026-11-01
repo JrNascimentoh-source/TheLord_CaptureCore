@@ -10,6 +10,8 @@ test("maps each game to the intended platform and database key",()=>{
   assert.equal(GAMES.aviator.databaseKey,"aviator");
   assert.equal(GAMES.aviator2.platform,"betdopovo");
   assert.equal(GAMES.aviator2.databaseKey,"aviator2");
+  assert.equal(GAMES.aviator.label,"Aviator");
+  assert.equal(GAMES.aviator2.label,"Aviator (BetDoPovo)");
 });
 test("accepts only supported platform and game combinations",()=>{
   assert.equal(isValidPair("7a7","aviator"),true);
