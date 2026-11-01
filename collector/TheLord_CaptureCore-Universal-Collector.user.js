@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TheLord CaptureCore — Universal Collector
 // @namespace    thelord-capturecore
-// @version      0.2.1
+// @version      0.2.2
 // @description  Captura resultados Aviator por instância e envia eventos ao painel CaptureCore que abriu a tela
 // @match        *://*/*
 // @exclude      *://jrnascimentoh-source.github.io/*
