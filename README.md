@@ -31,7 +31,6 @@ Gerenciar várias telas simultaneamente, mantendo cada instância isolada por pl
 |---|---|---|
 | 7a7 | Aviator | `aviator` |
 | BetDoPovo | Aviator | `aviator2` |
-| BetDoPovo | Aviator VIP | `aviatorvip` |
 
 ## Estrutura
 
@@ -92,7 +91,7 @@ Depois abra o endereço local informado pelo servidor. Para testar o userscript 
 - As instâncias, configurações salvas e os resumos de velas ficam no `localStorage` do navegador do painel; não sincronizam entre computadores.
 - Os eventos chegam ao painel por `window.opener.postMessage`; o navegador ou o site do jogo pode bloquear a relação entre janelas. O teste real precisa confirmar esse comportamento nas plataformas utilizadas.
 - O coletor não grava na tabela `public.velas` atual. Ela não possui identificador de instância e misturaria o histórico de telas do mesmo jogo.
-- Nenhuma alteração foi feita nas tabelas ou políticas Supabase. A integração remota será feita após definir autenticação e armazenamento por instância.
+- O histórico existente foi preservado; a política de INSERT da tabela `velas` agora aceita somente `aviator`, `aviator2` e a chave histórica `betdopovo`.
 - Não coloque chaves privilegiadas no frontend ou no userscript.
 
 Consulte [docs/architecture.md](docs/architecture.md) e [docs/supabase-integration.md](docs/supabase-integration.md) para as decisões técnicas.
