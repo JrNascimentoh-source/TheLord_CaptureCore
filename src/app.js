@@ -2,7 +2,7 @@ import {InstanceStore} from "./core/instance-store.js";
 import {SavedConfigStore} from "./core/saved-config-store.js";
 import {GAMES,PLATFORMS,isValidPair} from "./core/platform-registry.js";
 import {CollectorBridge} from "./adapters/collector-bridge.js";
-const store=new InstanceStore(), savedStore=new SavedConfigStore(), bridge=new CollectorBridge(), screenFrames=new Map(), $=s=>document.querySelector(s), activity=[];
+const store=new InstanceStore(), savedStore=new SavedConfigStore(), bridge=new CollectorBridge(), screenFrames=new Map(), screenWindows=new Map(), $=s=>document.querySelector(s), activity=[];
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function time(v){return v?new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"medium"}).format(new Date(v)):"Nenhum sinal recebido";}
 function log(message){activity.unshift({message,time:new Date()});activity.splice(8);renderActivity();}
@@ -13,7 +13,10 @@ function renderActivity(){
 function render(){
  const items=store.list(),online=items.filter(i=>i.status==="online").length,games=new Set(items.map(i=>i.gameId)).size;
  $("#metric-total").textContent=items.length;$("#metric-online").textContent=online;$("#metric-offline").textContent=items.length-online;$("#metric-games").textContent=games;
- $("#instance-count").textContent=items.length+" INSTÂNCIAS";$("#engine-status").textContent=online+" coletor(es) com sinal";
+ $("#instance-count").textContent=items.length+" INSTÂNCIAS";
+ const engineDot=$(".header-status .status-dot");
+ engineDot?.classList.remove("idle","offline");engineDot?.classList.add("online");
+ $("#engine-status").textContent=online?"Motor ativo · "+online+" coletor(es) online":"Motor ativo · aguardando coletores";
  $("#instance-list").innerHTML=items.length?items.map(i=>{
   const p=PLATFORMS[i.platformId],g=GAMES[i.gameId],status=i.status==="online"?"online":"offline";
   let hostname="Origem inválida";try{hostname=new URL(i.sourceUrl).hostname;}catch{}
@@ -63,6 +66,22 @@ function createInstance(event){
   $("#instance-form").reset();$("#platform").value="7a7";updateGameOptions();closeModal();render();
  }catch{$("#form-error").textContent="Informe uma URL válida (http ou https).";}
 }
+function updateScreenCount(){
+ const ids=new Set([...screenFrames.keys(),...screenWindows.keys()]);
+ $("#screen-count").textContent=ids.size+" TELAS";
+}
+function openExternalScreen(item,url,titleEl){
+ let popup=screenWindows.get(item.id);
+ if(popup&&!popup.closed){popup.focus();bridge.register(item.id,popup,url.origin);return;}
+ popup=window.open(url.href,"capturecore-"+item.id,"popup,width=1280,height=900,resizable=yes,scrollbars=yes");
+ if(!popup){titleEl.textContent="Janela bloqueada pelo navegador. Permita pop-ups para este painel.";log("Pop-up bloqueado para "+item.screenName);return;}
+ screenWindows.set(item.id,popup);
+ bridge.register(item.id,popup,url.origin);
+ store.updateStatus(item.id,"connecting");
+ titleEl.textContent="Jogo aberto em janela vinculada; aguardando heartbeat do coletor…";
+ updateScreenCount();render();
+ log("Jogo aberto em janela externa vinculada: "+item.screenName);
+}
 function openInstance(id){
  window.captureCoreShowSection?.('game-screens');
  const item=store.list().find(entry=>entry.id===id);if(!item)return;
@@ -74,18 +93,21 @@ function openInstance(id){
   const title=document.createElement("div");title.innerHTML='<strong></strong><small>Carregando jogo e aguardando o coletor…</small>';title.querySelector("strong").textContent=item.screenName;
   const actions=document.createElement("div");actions.className="game-screen-actions";
   const reload=document.createElement("button");reload.type="button";reload.className="text-button";reload.textContent="Recarregar";
+  const external=document.createElement("button");external.type="button";external.className="text-button";external.textContent="Abrir em janela externa";
   const close=document.createElement("button");close.type="button";close.className="text-button danger";close.textContent="Fechar tela";
   const frame=document.createElement("iframe");frame.className="game-screen-frame";frame.title="Jogo: "+item.screenName;frame.src=url.href;frame.referrerPolicy="strict-origin-when-cross-origin";frame.allow="fullscreen; autoplay; clipboard-read; clipboard-write";
   reload.addEventListener("click",()=>{store.updateStatus(item.id,"connecting");title.querySelector("small").textContent="Recarregando…";frame.src=url.href;});
-  close.addEventListener("click",()=>closeScreen(item.id));frame.addEventListener("load",()=>{title.querySelector("small").textContent="Documento carregado; aguardando sinal do coletor…";});
-  actions.append(reload,close);heading.append(title,actions);panel.append(heading,frame);$("#screen-grid .saved-empty")?.remove();$("#screen-grid").prepend(panel);screenFrames.set(item.id,frame);
-  bridge.register(item.id,frame.contentWindow,url.origin);store.updateStatus(item.id,"connecting");$("#screen-count").textContent=screenFrames.size+" TELAS";
+  external.addEventListener("click",()=>openExternalScreen(item,url,title.querySelector("small")));
+  close.addEventListener("click",()=>closeScreen(item.id));frame.addEventListener("load",()=>{title.querySelector("small").textContent="Documento carregado; se não chegar sinal, use “Abrir em janela externa”.";});
+  actions.append(reload,external,close);heading.append(title,actions);panel.append(heading,frame);$("#screen-grid .saved-empty")?.remove();$("#screen-grid").prepend(panel);screenFrames.set(item.id,frame);
+  bridge.register(item.id,frame.contentWindow,url.origin);store.updateStatus(item.id,"connecting");updateScreenCount();
   panel.scrollIntoView({behavior:"smooth",block:"start"});log("Jogo incorporado ao painel: "+item.screenName);render();
  }catch{log("Não foi possível incorporar a URL da instância "+item.screenName);}
 }
 function closeScreen(id){
- const frame=screenFrames.get(id);bridge.unregister(id);screenFrames.delete(id);frame?.closest(".game-screen")?.remove();
- const item=store.list().find(entry=>entry.id===id);if(item)store.updateStatus(id,"offline");$("#screen-count").textContent=screenFrames.size+" TELAS";
+ const frame=screenFrames.get(id),popup=screenWindows.get(id);bridge.unregister(id);screenFrames.delete(id);screenWindows.delete(id);frame?.closest(".game-screen")?.remove();
+ try{if(popup&&!popup.closed)popup.close();}catch{}
+ const item=store.list().find(entry=>entry.id===id);if(item)store.updateStatus(id,"offline");updateScreenCount();
  if(!screenFrames.size)$("#screen-grid").innerHTML='<div class="saved-empty">Nenhuma tela aberta. Use “Abrir jogo e coletar” em uma instância.</div>';
  render();log("Tela fechada no painel"+(item?": "+item.screenName:"."));
 }
@@ -121,4 +143,8 @@ bridge.connect();bridge.onCollectorEvent(onCollectorEvent);bridge.onDiagnostic(d
  const messages={origin:"Sinal do coletor rejeitado: domínio de origem diferente do cadastrado ("+detail.receivedOrigin+"; esperado "+detail.expectedOrigin+").",window:"Sinal recebido de uma janela diferente da tela registrada.",instance:"Sinal recebido com identificador de instância não registrado.",payload:"Sinal do coletor recebido com formato inválido."};
  log(messages[detail.reason]||"Falha na validação do sinal do coletor.");
 });render();renderSavedConfigs();
-setInterval(()=>{let changed=false;for(const item of store.list()){if(item.status==="online"&&!bridge.isFresh(item.lastSeenAt)){store.updateStatus(item.id,"offline",item.lastSeenAt);changed=true;}}if(changed)render();},15000);
+setInterval(()=>{let changed=false;
+ for(const [id,popup] of screenWindows){if(popup.closed){screenWindows.delete(id);bridge.unregister(id);const item=store.list().find(entry=>entry.id===id);if(item){store.updateStatus(id,"offline",item.lastSeenAt);changed=true;}updateScreenCount();}}
+ for(const item of store.list()){if(item.status==="online"&&!bridge.isFresh(item.lastSeenAt)){store.updateStatus(item.id,"offline",item.lastSeenAt);changed=true;}}
+ if(changed)render();
+},5000);
