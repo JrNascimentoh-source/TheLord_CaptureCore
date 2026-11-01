@@ -93,7 +93,7 @@ $("#close-modal").addEventListener("click",closeModal);$("#cancel-modal").addEve
 $("#instance-form").addEventListener("submit",createInstance);$("#platform").addEventListener("change",updateGameOptions);
 $("#saved-list").addEventListener("click",event=>{
  const start=event.target.closest("[data-start-saved]");if(start){startSavedConfig(start.dataset.startSaved);return;}
- const remove=event.target.closest("[data-delete-saved]");if(remove&&confirm("Excluir esta configuração salva?")){savedStore.remove(remove.dataset.deleteSaved);log("Configuração salva excluída.");renderSavedConfigs();}
+ const remove=event.target.closest("[data-delete-saved]");if(remove&&confirm("Excluir esta configuração salva?")){savedStore.remove(remove.dataset.deleteSaved);log("Configuração salva excluída.");render();}
 });
 $("#instance-list").addEventListener("click",event=>{
  const saveButton=event.target.closest("[data-save]");if(saveButton){saveInstanceConfig(saveButton.dataset.save);return;}
