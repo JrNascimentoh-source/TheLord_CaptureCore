@@ -1,3 +1,4 @@
+import {isValidPair} from "./platform-registry.js";
 const STORAGE_KEY = "thelord_capturecore_instances_v1";
 const ALLOWED_STATES = new Set(["offline", "connecting", "online", "error"]);
 function makeId() {
@@ -6,13 +7,17 @@ function makeId() {
 function readAll() {
   try {
     const parsed = JSON.parse(globalThis.localStorage?.getItem(STORAGE_KEY) ?? "[]");
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    const supported = parsed.filter(item => isValidPair(item?.platformId, item?.gameId));
+    if (supported.length !== parsed.length) writeAll(supported);
+    return supported;
   } catch { return []; }
 }
 function writeAll(items) { globalThis.localStorage?.setItem(STORAGE_KEY, JSON.stringify(items)); }
 export class InstanceStore {
   list() { return readAll().sort((a,b) => b.createdAt.localeCompare(a.createdAt)); }
   create({platformId,gameId,screenName,sourceUrl}) {
+    if (!isValidPair(platformId,gameId)) throw new Error("Combinação de plataforma e jogo não suportada.");
     const item = {id:makeId(),platformId,gameId,screenName:screenName.trim(),sourceUrl:sourceUrl.trim(),status:"offline",lastSeenAt:null,lastValue:null,roundCount:0,createdAt:new Date().toISOString()};
     const all = readAll(); all.push(item); writeAll(all); return item;
   }
