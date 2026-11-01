@@ -30,7 +30,7 @@ function renderSavedConfigs(){
  const items=savedStore.list();
  $("#saved-count").textContent=items.length+" SALVAS";
  $("#saved-list").innerHTML=items.length?items.map(item=>{
-  const p=PLATFORMS[item.platformId],g=GAMES[item.gameId];
+  const g=GAMES[item.gameId];
   let hostname="Origem inválida";try{hostname=new URL(item.sourceUrl).hostname;}catch{}
   return '<article class="saved-card"><div class="saved-card-main"><span class="saved-mark">★</span><div><h3>'+esc(item.screenName)+'</h3><p>'+esc(p?.label||item.platformId)+' · '+esc(g?.label||item.gameId)+'</p><small>'+esc(hostname)+'</small></div></div><div class="saved-actions"><button class="text-button" data-start-saved="'+esc(item.id)+'">Iniciar tela ↗</button><button class="text-button danger" data-delete-saved="'+esc(item.id)+'" aria-label="Excluir configuração salva">Excluir</button></div></article>';
  }).join(""):'<div class="saved-empty">Nenhuma configuração salva ainda. Use “Salvar configuração” em uma tela cadastrada.</div>';
