@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="TheLord CaptureCore">
+<circle cx="60" cy="60" r="58" fill="#ff1e43" opacity=".18"/>
+<circle cx="60" cy="60" r="55" fill="#12080a" stroke="#ff1e43" stroke-width="4"/>
+<path d="M32 44V32H44M76 32H88V44M88 76V88H76M44 88H32V76" fill="none" stroke="#ffc01f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M60 44L76 60L60 76L44 60Z" fill="none" stroke="#ffc01f" stroke-width="3" stroke-linejoin="round"/>
+<circle cx="60" cy="60" r="5" fill="#ff1e43"/>
+</svg>
