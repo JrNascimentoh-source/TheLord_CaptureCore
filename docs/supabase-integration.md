@@ -22,9 +22,15 @@ Políticas observadas:
 - RLS habilitado.
 - Políticas de SELECT, INSERT e UPDATE limitadas ao usuário autenticado correspondente.
 
+## Encaminhamento pelo CaptureCore
+
+O painel CaptureCore valida o jogo informado pelo coletor contra o jogo cadastrado na instância e encaminha a vela para `public.velas` usando exclusivamente a chave canônica da instância: `aviator` para 7a7 e `aviator2` para BetDoPovo. Falhas de rede mantêm as velas em uma fila local para nova tentativa. O coletor não recebe nem utiliza chave `service_role`; o encaminhamento usa somente a chave pública já utilizada pelo app e a política RLS de INSERT existente.
+
+O app TheLord_Aviator consulta somente as chaves `aviator`, `aviator2` e a chave histórica `betdopovo`. O normalizador mantém `betdopovo` compatível com `aviator2`, e cada linha é armazenada em sua coleção específica (`sharedRoundsByGame.aviator` ou `sharedRoundsByGame.aviator2`).
+
 ## Consequência para múltiplas telas
 
-A tabela `velas` não contém `instance_id`, `screen_id` ou outra coluna de origem. Portanto, gravar duas telas que estejam no mesmo jogo nela não permite separar seus históricos com segurança. Filtrar apenas por `game` mistura as telas.
+A tabela `velas` não contém `instance_id`, `screen_id` ou outra coluna de origem. Portanto, gravar duas telas que estejam no mesmo jogo nela não permite separar seus históricos com segurança. Filtrar por `game` separa as duas plataformas, mas não separa duas instâncias da mesma plataforma. O fluxo atual de integração compartilha o histórico por plataforma/jogo, não por tela individual. Se for necessário manter históricos independentes de duas telas do mesmo jogo, será necessário adicionar identidade de instância ao schema e definir autorização própria.
 
 ## Direção recomendada
 
