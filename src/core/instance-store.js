@@ -9,7 +9,7 @@ function readAll() {
     const parsed = JSON.parse(globalThis.localStorage?.getItem(STORAGE_KEY) ?? "[]");
     if (!Array.isArray(parsed)) return [];
     const supported = parsed.filter(item => isValidPair(item?.platformId, item?.gameId));
-    if (supported.length !== parsed.length) writeAll(supported);
+    if (supported.length !== parsed.length) { try { writeAll(supported); } catch {} }
     return supported;
   } catch { return []; }
 }
