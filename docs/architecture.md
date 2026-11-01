@@ -1,18 +1,18 @@
-# Arquitetura inicial — TheLord_CaptureCore
+# Arquitetura — TheLord_CaptureCore
 
 ## Objetivo
-Centralizar múltiplas telas e instâncias de coletores sem acoplar o painel ao código específico de cada jogo. O CaptureCore é independente; o TheLord_Aviator permanece como consumidor dos dados e não será alterado por esta base.
+Centralizar múltiplas telas e instâncias de coletores sem acoplar o painel ao código específico de cada jogo. O CaptureCore é independente; o TheLord_Aviator permanece como consumidor dos dados e não será alterado por esta implementação.
 
 ## Componentes
-- **Dashboard:** visão operacional das instâncias, status e atividade.
-- **InstanceStore:** cadastro local e identidade individual de cada tela.
+- **Dashboard:** visão operacional das instâncias, status, última vela e atividade.
+- **InstanceStore:** cadastro e resumo local individual por tela.
 - **Platform Registry:** catálogo explícito de plataformas e jogos.
-- **CollectorBridge:** contrato de mensagens entre coletor e painel.
-- **Collector Adapter:** futura camada que traduz o Universal Collector para o protocolo do CaptureCore.
-- **Supabase Adapter:** futura camada de persistência remota usando o projeto Supabase existente.
+- **CollectorBridge:** recebe mensagens e valida se a origem é a janela aberta para aquela instância.
+- **Universal Collector:** userscript separado que identifica jogo e envia heartbeat/resultados para a janela do painel que o abriu.
+- **Supabase Adapter:** ainda não implementado; será responsável pela persistência compartilhada com isolamento por instância.
 
 ## Identidade e roteamento
-Cada instância recebe um `id` próprio, além de `platformId`, `gameId`, `screenName` e `sourceUrl`. A identidade não deve depender apenas do hostname: várias telas podem abrir a mesma plataforma e jogo simultaneamente.
+Cada instância recebe um `id` próprio, além de `platformId`, `gameId`, `screenName` e `sourceUrl`. A identidade não depende apenas do hostname: várias telas podem abrir a mesma plataforma e jogo simultaneamente.
 
 | Plataforma | Jogo na interface | Chave lógica |
 |---|---|---|
@@ -20,46 +20,47 @@ Cada instância recebe um `id` próprio, além de `platformId`, `gameId`, `scree
 | BetDoPovo | Aviator | `aviator2` |
 | BetDoPovo | Aviator VIP | `aviatorvip` |
 
-O `gameId` é a chave de roteamento. O rótulo visual pode se repetir em plataformas diferentes sem misturar históricos.
+## Fluxo de captura nesta etapa
+1. O usuário cadastra uma instância no dashboard.
+2. Ao clicar em **Abrir jogo e coletar**, o painel abre a URL em uma nova janela, acrescentando `_capturecore_instance` e `_capturecore_origin`.
+3. O Universal Collector instalado via Tampermonkey lê a identidade da instância e identifica o jogo, preservando o parâmetro `via=4` do VIP.
+4. Em páginas com iframes, os frames encaminham eventos ao frame superior; o frame superior encaminha ao painel por `window.opener.postMessage`, com o origin exato do dashboard.
+5. O bridge só aceita eventos se `event.source` for exatamente a janela que o próprio painel registrou para aquele `instanceId`.
+6. Heartbeats atualizam Online/Off-line; eventos `round` atualizam o último resultado e o contador local daquela instância.
 
 ## Estados
 - `offline`: nenhum sinal recente conhecido.
-- `connecting`: vínculo com coletor em andamento.
-- `online`: heartbeat recente e válido associado ao `instanceId`.
-- `error`: coletor ou transporte reportou falha.
+- `connecting`: a janela do jogo foi aberta; ainda não chegou heartbeat.
+- `online`: heartbeat ou resultado recente e válido.
+- `error`: reservado para falha reportada pelo adaptador.
 
-A interface não marca uma instância online apenas porque foi cadastrada ou porque a página está aberta. O estado online depende de sinal real do coletor. A referência inicial de expiração é 120 segundos; a rotina de expiração ainda será implementada no runtime.
+O status expira após 120 segundos sem sinal. Abrir uma URL não significa que o coletor esteja ativo.
 
 ## Protocolo de eventos — versão 1
-O bridge aceita mensagens `window.postMessage` da própria janela:
-
 ```js
 {
   type: "THELORD_CAPTURECORE_EVENT",
   version: 1,
   instanceId: "id-da-instancia",
-  kind: "heartbeat",
-  data: null
+  kind: "heartbeat" | "round",
+  data: { game: "aviator", value: 2.4, detectedAt: "ISO-8601" }
 }
 ```
 
-O protocolo será ampliado para resultados de rodada, diagnóstico e reconexão. Antes de produção, o adaptador precisa validar origem, vínculo da instância e formato dos dados. Mensagens do navegador não são, por si só, uma fronteira de segurança.
+O bridge aceita apenas os tipos `heartbeat` e `round`, exige uma instância registrada e compara a referência da janela de origem. O origin de destino do userscript é fixo para o GitHub Pages do CaptureCore. Isso reduz mensagens cruzadas entre janelas, mas não substitui autenticação no servidor.
 
 ## Persistência
-A fundação atual salva somente as configurações em `localStorage` do navegador do painel. Isso é provisório e não sincroniza entre computadores.
+A configuração das instâncias e os resumos de última vela/contagem ficam no `localStorage` do navegador do painel. Essa camada é provisória e não sincroniza entre computadores. A relação entre janela de abertura e janela de jogo também é mantida em memória; recarregar o dashboard exige abrir novamente os jogos para reestabelecer o vínculo.
 
-A integração remota deverá reutilizar o Supabase existente, sem criar outro projeto ou alterar tabelas/políticas existentes nesta fase. Antes de qualquer SQL ou mudança de RLS, será necessário inspecionar o schema e as políticas reais. Nenhuma chave `service_role` ou segredo poderá estar no frontend.
+## Supabase
+A tabela atual `public.velas` não possui `instance_id`/ `screen_id`; gravar várias telas nela misturaria históricos. Não gravamos nessa tabela nesta etapa. O projeto deve reutilizar o Supabase existente após definir autenticação e persistência própria por instância. Não expor `service_role` nem tratar UUID enviado pelo navegador como credencial confiável.
 
-## Próximas etapas
-1. Adaptar o Universal Collector para receber identificador de instância e emitir heartbeat/eventos versionados.
-2. Testar duas ou mais telas simultâneas, inclusive dois jogos iguais em telas diferentes.
-3. Implementar o adaptador Supabase após confirmar modelo de dados e permissões existentes.
-4. Adicionar persistência compartilhada das instâncias e reconciliação de status.
-5. Adicionar telemetria, fila offline por instância e testes automatizados.
+## Limitações e testes pendentes
+- O navegador ou o site pode isolar a janela aberta (por exemplo, políticas COOP) e remover `window.opener`; o fluxo precisa ser validado em Firefox/Tampermonkey e nas plataformas reais.
+- A leitura dos resultados depende dos seletores/estrutura DOM do jogo e precisa de teste real.
+- O status e o resumo são locais ao navegador do painel.
+- Ainda não há sincronização multiusuário, fila offline remota ou envio de resultados ao Supabase.
+- O Universal Collector desta aplicação é um arquivo independente; não altera nem substitui o coletor instalado no TheLord_Aviator.
 
-## Limitações desta fundação
-- Não inicia nem injeta userscript automaticamente.
-- Não envia velas ao Supabase.
-- A configuração das instâncias é local ao navegador.
-- Status online só será efetivo quando um coletor compatível emitir heartbeat.
-- Ainda não há autenticação nem controle multiusuário.
+## Publicação
+O workflow `.github/workflows/pages.yml` executa os testes e publica o site no GitHub Pages quando alterações chegam à `main`. O endereço previsto é `https://jrnascimentoh-source.github.io/TheLord_CaptureCore/`.
