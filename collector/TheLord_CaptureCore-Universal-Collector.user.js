@@ -6,8 +6,6 @@
 // @match        *://*/*
 // @exclude      *://jrnascimentoh-source.github.io/*
 // @exclude      *://*.jrnascimentoh-source.github.io/*
-// @exclude      *://7a7dd.com/*
-// @exclude      *://*.7a7dd.com/*
 // @grant        none
 // @run-at       document-idle
 // ==/UserScript==
@@ -15,12 +13,12 @@
 (function () {
   'use strict';
 
-  const IS_TOP = window.top === window.self;
+  const IS_ROOT = !!readCaptureConfig(location.href);
   const TOP_URL_MESSAGE = 'thelord-capturecore-top-url';
   const FRAME_EVENT = 'THELORD_CAPTURECORE_FRAME_EVENT';
   const SELF_URL = location.href;
   const APP_ORIGIN = 'https://jrnascimentoh-source.github.io';
-  let topUrl = IS_TOP ? SELF_URL : '';
+  let topUrl = IS_ROOT ? SELF_URL : '';
   let instanceId = '';
   let dashboardOrigin = '';
 
@@ -55,25 +53,25 @@
   window.addEventListener('message', event => {
     const data = event.data;
     if (!data || typeof data !== 'object') return;
-    if (data.type === TOP_URL_MESSAGE && !IS_TOP && event.source === window.parent && typeof data.url === 'string') {
+    if (data.type === TOP_URL_MESSAGE && !IS_ROOT && event.source === window.parent && typeof data.url === 'string') {
       applyTopUrl(data.url);
       forwardTopUrl(data.url);
       return;
     }
-    if (IS_TOP && data.type === FRAME_EVENT && typeof data.instanceId === 'string' && data.instanceId === instanceId) {
+    if (IS_ROOT && data.type === FRAME_EVENT && typeof data.instanceId === 'string' && data.instanceId === instanceId) {
       sendToDashboard(data.kind, data.data);
     }
   });
-  if (IS_TOP) {
+  if (IS_ROOT) {
     applyTopUrl(SELF_URL);
     forwardTopUrl(SELF_URL);
     setInterval(() => forwardTopUrl(SELF_URL), 1500);
   }
 
   function sendToDashboard(kind, data) {
-    if (!IS_TOP || !instanceId || dashboardOrigin !== APP_ORIGIN || !window.opener || window.opener.closed) return;
+    if (!IS_ROOT || !instanceId || dashboardOrigin !== APP_ORIGIN || window.parent === window) return;
     try {
-      window.opener.postMessage({
+      window.parent.postMessage({
         type: 'THELORD_CAPTURECORE_EVENT',
         version: 1,
         instanceId,
@@ -84,9 +82,9 @@
   }
   function emit(kind, data) {
     if (!instanceId || dashboardOrigin !== APP_ORIGIN) return;
-    if (IS_TOP) sendToDashboard(kind, data);
+    if (IS_ROOT) sendToDashboard(kind, data);
     else {
-      try { window.top.postMessage({ type: FRAME_EVENT, instanceId, kind, data: data ?? null }, '*'); } catch (_) {}
+      try { window.parent.postMessage({ type: FRAME_EVENT, instanceId, kind, data: data ?? null }, '*'); } catch (_) {}
     }
   }
 
@@ -95,7 +93,7 @@
       const selfIsBet = isBetDoPovoUrl(SELF_URL);
       const selfParsed = parseUrl(SELF_URL);
       const selfViaVip = !!selfParsed && selfParsed.searchParams.get('via') === '4';
-      if (IS_TOP) return resolve(gameFromUrl(SELF_URL));
+      if (IS_ROOT) return resolve(gameFromUrl(SELF_URL));
       if (selfIsBet && selfViaVip) return resolve('aviatorvip');
       const referrer = document.referrer || '';
       const referrerParsed = parseUrl(referrer);
@@ -129,9 +127,9 @@
     badge.style.cssText = 'position:fixed;bottom:4px;left:4px;z-index:2147483647;background:#000c;color:#ffc72c;font:11px sans-serif;padding:3px 6px;border-radius:6px;pointer-events:none';
     badge.textContent = 'CaptureCore [' + GAME_LABEL + ']: ' + (instanceId ? 'conectando' : 'abra pelo painel');
     function showBadge() {
-      if (IS_TOP && document.body && !document.body.contains(badge)) document.body.appendChild(badge);
+      if (IS_ROOT && document.body && !document.body.contains(badge)) document.body.appendChild(badge);
     }
-    if (IS_TOP) { showBadge(); setInterval(showBadge, 2000); }
+    if (IS_ROOT) { showBadge(); setInterval(showBadge, 2000); }
 
     function parseMultiplier(text) {
       let raw = String(text || '').trim().replace(/[x×]$/i, '').replace(/\s/g, '');
@@ -172,7 +170,7 @@
     let observedSignature = null;
     let observedCount = 0;
     try { lastSignature = localStorage.getItem(signatureKey) || null; } catch (_) {}
-    if (IS_TOP && instanceId) {
+    if (IS_ROOT && instanceId) {
       emit('heartbeat', { game: GAME, host });
       setInterval(() => emit('heartbeat', { game: GAME, host }), 15000);
     }
