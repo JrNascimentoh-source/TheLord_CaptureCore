@@ -146,7 +146,7 @@ $("#instance-list").addEventListener("click",event=>{
  if(!item||!confirm('Remover a instância "'+item.screenName+'" deste navegador?'))return;
  closeScreen(item.id);store.remove(item.id);log("Instância removida: "+item.screenName);render();
 });
-bridge.connect();bridge.onCollectorEvent(onCollectorEvent);void relay.flush();bridge.onDiagnostic(detail=>{
+bridge.connect();bridge.onCollectorEvent(onCollectorEvent);void relay.flush();setInterval(()=>void relay.flush(),15000);bridge.onDiagnostic(detail=>{
  const messages={origin:"Sinal do coletor rejeitado: domínio de origem diferente do cadastrado ("+detail.receivedOrigin+"; esperado "+detail.expectedOrigin+").",window:"Sinal recebido de uma janela diferente da tela registrada.",instance:"Sinal recebido com identificador de instância não registrado.",payload:"Sinal do coletor recebido com formato inválido."};
  log(messages[detail.reason]||"Falha na validação do sinal do coletor.");
 });render();renderSavedConfigs();
