@@ -108,3 +108,10 @@ body{padding:14px 14px 24px}.app{max-width:none;margin:0;padding-left:174px}
 .saved-empty{padding:20px;text-align:center;border:1px dashed rgba(255,192,31,.28);border-radius:var(--r-md);font-size:.76rem;line-height:1.5;color:var(--muted)}
 .instance-actions{grid-template-columns:1fr 1fr}
 @media(max-width:460px){.saved-card{align-items:flex-start;flex-direction:column}.saved-actions{width:100%}.saved-actions .text-button{flex:1}.instance-actions{grid-template-columns:1fr 1fr}.instance-actions [data-open]{grid-column:1/-1}}
+
+/* Telas de jogos incorporadas ao painel */
+.screen-grid{display:grid;grid-template-columns:1fr;gap:14px}.game-screen{min-width:0;overflow:hidden;border:1px solid rgba(255,192,31,.35);border-radius:var(--r-lg);background:#050408;box-shadow:0 0 18px rgba(255,30,67,.12)}
+.game-screen-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:linear-gradient(120deg,rgba(255,30,67,.12),rgba(255,192,31,.06));border-bottom:1px solid var(--line)}
+.game-screen-heading strong,.game-screen-heading small{display:block}.game-screen-heading strong{font-size:.82rem;color:var(--gold-hi)}.game-screen-heading small{margin-top:4px;font-size:.68rem;color:var(--muted)}
+.game-screen-actions{display:flex;gap:7px;flex:none}.game-screen-actions .text-button{min-height:36px;padding:7px 10px}.game-screen-frame{display:block;width:100%;height:clamp(460px,72vh,820px);border:0;background:#08060c}
+@media(max-width:520px){.game-screen-heading{align-items:flex-start;flex-direction:column}.game-screen-actions{width:100%}.game-screen-actions .text-button{flex:1}.game-screen-frame{height:70vh;min-height:420px}}

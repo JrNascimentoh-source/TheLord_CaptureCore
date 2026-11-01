@@ -2,7 +2,7 @@ import {InstanceStore} from "./core/instance-store.js";
 import {SavedConfigStore} from "./core/saved-config-store.js";
 import {GAMES,PLATFORMS,isValidPair} from "./core/platform-registry.js";
 import {CollectorBridge} from "./adapters/collector-bridge.js";
-const store=new InstanceStore(), savedStore=new SavedConfigStore(), bridge=new CollectorBridge(), popupWindows=new Map(), $=s=>document.querySelector(s), activity=[];
+const store=new InstanceStore(), savedStore=new SavedConfigStore(), bridge=new CollectorBridge(), screenFrames=new Map(), $=s=>document.querySelector(s), activity=[];
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function time(v){return v?new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"medium"}).format(new Date(v)):"Nenhum sinal recebido";}
 function log(message){activity.unshift({message,time:new Date()});activity.splice(8);renderActivity();}
@@ -41,8 +41,8 @@ function startSavedConfig(id){
  const config=savedStore.list().find(item=>item.id===id);if(!config)return;
  let instance=store.list().find(item=>item.platformId===config.platformId&&item.gameId===config.gameId&&item.screenName===config.screenName&&item.sourceUrl===config.sourceUrl);
  if(!instance)instance=store.create(config);
- const popup=popupWindows.get(instance.id);
- if(popup&&!popup.closed){try{popup.focus();}catch{}log("Tela já estava aberta: "+instance.screenName);return;}
+ const existing=screenFrames.get(instance.id);
+ if(existing?.isConnected){existing.closest(".game-screen")?.scrollIntoView({behavior:"smooth",block:"start"});log("Tela já está aberta no painel: "+instance.screenName);return;}
  log("Configuração reutilizada: "+instance.screenName);render();openInstance(instance.id);
 }
 function openModal(){$("#form-error").textContent="";updateGameOptions();$("#instance-modal").showModal();}
@@ -65,16 +65,28 @@ function createInstance(event){
 }
 function openInstance(id){
  const item=store.list().find(entry=>entry.id===id);if(!item)return;
+ const existing=screenFrames.get(item.id);if(existing?.isConnected){existing.closest(".game-screen")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
  try{
-  const url=new URL(item.sourceUrl);
-  url.searchParams.set("_capturecore_instance",item.id);
-  url.searchParams.set("_capturecore_origin",location.origin);
-  const popup=window.open(url.href,"_blank");
-  if(!popup){log("O navegador bloqueou a janela de "+item.screenName+"; permita pop-ups para este painel.");return;}
-  popupWindows.set(item.id,popup);bridge.register(item.id,popup);
-  store.updateStatus(item.id,"connecting");
-  log("Jogo aberto para coleta: "+item.screenName);render();
- }catch{log("Não foi possível abrir a URL da instância "+item.screenName);}
+  const url=new URL(item.sourceUrl);url.searchParams.set("_capturecore_instance",item.id);url.searchParams.set("_capturecore_origin",location.origin);
+  const panel=document.createElement("article");panel.className="game-screen";panel.dataset.screenId=item.id;
+  const heading=document.createElement("div");heading.className="game-screen-heading";
+  const title=document.createElement("div");title.innerHTML='<strong></strong><small>Carregando jogo e aguardando o coletor…</small>';title.querySelector("strong").textContent=item.screenName;
+  const actions=document.createElement("div");actions.className="game-screen-actions";
+  const reload=document.createElement("button");reload.type="button";reload.className="text-button";reload.textContent="Recarregar";
+  const close=document.createElement("button");close.type="button";close.className="text-button danger";close.textContent="Fechar tela";
+  const frame=document.createElement("iframe");frame.className="game-screen-frame";frame.title="Jogo: "+item.screenName;frame.src=url.href;frame.referrerPolicy="strict-origin-when-cross-origin";frame.allow="fullscreen; autoplay; clipboard-read; clipboard-write";
+  reload.addEventListener("click",()=>{store.updateStatus(item.id,"connecting");title.querySelector("small").textContent="Recarregando…";frame.src=url.href;});
+  close.addEventListener("click",()=>closeScreen(item.id));frame.addEventListener("load",()=>{title.querySelector("small").textContent="Documento carregado; aguardando sinal do coletor…";});
+  actions.append(reload,close);heading.append(title,actions);panel.append(heading,frame);$("#screen-grid .saved-empty")?.remove();$("#screen-grid").prepend(panel);screenFrames.set(item.id,frame);
+  bridge.register(item.id,frame.contentWindow,url.origin);store.updateStatus(item.id,"connecting");$("#screen-count").textContent=screenFrames.size+" TELAS";
+  panel.scrollIntoView({behavior:"smooth",block:"start"});log("Jogo incorporado ao painel: "+item.screenName);render();
+ }catch{log("Não foi possível incorporar a URL da instância "+item.screenName);}
+}
+function closeScreen(id){
+ const frame=screenFrames.get(id);bridge.unregister(id);screenFrames.delete(id);frame?.closest(".game-screen")?.remove();
+ const item=store.list().find(entry=>entry.id===id);if(item)store.updateStatus(id,"offline");$("#screen-count").textContent=screenFrames.size+" TELAS";
+ if(!screenFrames.size)$("#screen-grid").innerHTML='<div class="saved-empty">Nenhuma tela aberta. Use “Abrir jogo e coletar” em uma instância.</div>';
+ render();log("Tela fechada no painel"+(item?": "+item.screenName:"."));
 }
 function onCollectorEvent(detail){
  const instance=store.list().find(i=>i.id===detail.instanceId);if(!instance)return;
@@ -102,8 +114,7 @@ $("#instance-list").addEventListener("click",event=>{
  const button=event.target.closest("[data-remove]");if(!button)return;
  const item=store.list().find(i=>i.id===button.dataset.remove);
  if(!item||!confirm('Remover a instância "'+item.screenName+'" deste navegador?'))return;
- const popup=popupWindows.get(item.id);try{popup?.close();}catch{}
- popupWindows.delete(item.id);bridge.unregister(item.id);store.remove(item.id);log("Instância removida: "+item.screenName);render();
+ closeScreen(item.id);store.remove(item.id);log("Instância removida: "+item.screenName);render();
 });
 bridge.connect();bridge.onCollectorEvent(onCollectorEvent);render();renderSavedConfigs();
 setInterval(()=>{let changed=false;for(const item of store.list()){if(item.status==="online"&&!bridge.isFresh(item.lastSeenAt)){store.updateStatus(item.id,"offline",item.lastSeenAt);changed=true;}}if(changed)render();},15000);
