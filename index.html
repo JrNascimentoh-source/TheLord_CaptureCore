@@ -26,6 +26,7 @@
 <div class="section-heading"><div><h2 class="title">Instâncias monitoradas</h2><p class="muted">Cada tela mantém sua própria identificação e estado.</p></div><span class="subtle-tag" id="instance-count">0 instâncias</span></div>
 <div class="instance-grid" id="instance-list"><div class="empty-state"><span class="empty-icon">▣</span><b>Nenhuma instância cadastrada</b><p>Adicione a primeira tela para iniciar a configuração do CaptureCore.</p><button class="button secondary" id="empty-add" type="button">＋ Adicionar tela</button></div></div>
 </section>
+<section class="card" id="saved-configs"><div class="section-heading"><div><h2 class="title">Configurações salvas</h2><p class="muted">Perfis prontos para abrir novamente sem preencher tudo de novo.</p></div><span class="subtle-tag" id="saved-count">0 SALVAS</span></div><div class="saved-grid" id="saved-list"><div class="saved-empty">Nenhuma configuração salva ainda. Use “Salvar configuração” em uma tela cadastrada.</div></div></section>
 <section class="card" id="activity">
 <div class="section-heading"><div><h2 class="title">Atividade recente</h2><p class="muted">Eventos locais desta sessão.</p></div></div>
 <div class="activity-list" id="activity-list"><p class="activity-empty">Nenhuma atividade registrada.</p></div>
@@ -38,6 +39,7 @@
 <div class="sidebar-brand"><img src="assets/logo.svg" alt="" width="30" height="30"><span>TheLord_CaptureCore</span></div>
 <a class="nav active" href="#dashboard" data-tooltip="Painel geral"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="nav-label">Painel</span></a>
 <a class="nav" href="#instances" data-tooltip="Instâncias"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><span class="nav-label">Instâncias</span></a>
+<a class="nav" href="#saved-configs" data-tooltip="Configurações salvas"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12a1 1 0 0 1 1 1v16l-7-4-7 4V5a1 1 0 0 1 1-1Z"/></svg><span class="nav-label">Salvas</span></a>
 <a class="nav" href="#activity" data-tooltip="Atividade"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span class="nav-label">Atividade</span></a>
 </nav>
 <dialog class="modal" id="instance-modal"><form id="instance-form" method="dialog"><div class="modal-heading"><div><div class="eyebrow">Nova configuração</div><h2>Adicionar instância</h2></div><button class="icon-button" type="button" id="close-modal" aria-label="Fechar">×</button></div>
