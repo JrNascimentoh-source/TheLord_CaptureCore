@@ -26,10 +26,11 @@ test("creates separate instances and records rounds per instance",()=>{
   assert.equal(items.find(item=>item.id===second.id).roundCount,1);
   assert.equal(items.find(item=>item.id===second.id).lastValue,4.1);
 });
-test("rejects invalid captured values and preserves instance isolation",()=>{
+test("rejects unsupported games and invalid captured values",()=>{
   installStorage();
   const store=new InstanceStore();
-  const item=store.create({platformId:"betdopovo",gameId:"aviatorvip",screenName:"VIP",sourceUrl:"https://example.com/?via=4"});
+  assert.throws(()=>store.create({platformId:"betdopovo",gameId:"aviatorvip",screenName:"Tela inválida",sourceUrl:"https://example.com/game"}));
+  const item=store.create({platformId:"betdopovo",gameId:"aviator2",screenName:"Tela 2",sourceUrl:"https://example.com/game"});
   assert.equal(store.recordRound(item.id,{value:0}),null);
   assert.equal(store.recordRound(item.id,{value:1000000}),null);
   assert.equal(store.list()[0].roundCount,0);
