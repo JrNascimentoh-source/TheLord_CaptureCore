@@ -14,6 +14,6 @@
  links.forEach(function(a){a.addEventListener('click',function(){setActive(a.getAttribute('href').slice(1))})});
  if('IntersectionObserver' in window){
   var io=new IntersectionObserver(function(list){list.forEach(function(e){if(e.isIntersecting)setActive(e.target.id)})},{rootMargin:'-35% 0px -55% 0px'});
-  ['dashboard','instances','activity'].forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el)});
+  ['dashboard','instances','saved-configs','activity'].forEach(function(id){var el=document.getElementById(id);if(el)io.observe(el)});
  }
 })();
