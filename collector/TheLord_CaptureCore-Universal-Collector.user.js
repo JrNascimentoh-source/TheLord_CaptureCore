@@ -137,10 +137,7 @@
 
     });
     mediaObserver.observe(document.documentElement, {childList:true,subtree:true});
-    const focusTimer = setInterval(() => {
-      silenceMedia();
-
-    }, 1200);
+    setInterval(silenceMedia, 1200);
     const badge = document.createElement('div');
     badge.style.cssText = 'position:fixed;bottom:4px;left:4px;z-index:2147483647;background:#000c;color:#ffc72c;font:11px sans-serif;padding:3px 6px;border-radius:6px;pointer-events:none';
     badge.textContent = 'CaptureCore [' + GAME_LABEL + ']: ' + (instanceId ? 'conectando' : 'abra pelo painel');
