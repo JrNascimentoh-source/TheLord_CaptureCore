@@ -78,6 +78,7 @@ Depois abra o endereço local informado pelo servidor. Para testar o userscript 
 - [x] Bridge com validação da janela que originou a mensagem.
 - [x] Universal Collector separado, com heartbeat e eventos de rodada.
 - [x] Resumo local de última vela e quantidade por instância.
+- [x] Salvar perfis de telas configuradas e reiniciá-los pela navegação.
 - [x] Testes do catálogo, armazenamento local e isolamento do bridge.
 - [x] CI validado: testes automatizados e verificação sintática aprovados.
 - [x] Workflow de testes e publicação GitHub Pages.
@@ -87,7 +88,7 @@ Depois abra o endereço local informado pelo servidor. Para testar o userscript 
 
 ## Limites desta versão
 
-- As configurações e os resumos de velas ficam no `localStorage` do navegador do painel; não sincronizam entre computadores.
+- As instâncias, configurações salvas e os resumos de velas ficam no `localStorage` do navegador do painel; não sincronizam entre computadores.
 - Os eventos chegam ao painel por `window.opener.postMessage`; o navegador ou o site do jogo pode bloquear a relação entre janelas. O teste real precisa confirmar esse comportamento nas plataformas utilizadas.
 - O coletor não grava na tabela `public.velas` atual. Ela não possui identificador de instância e misturaria o histórico de telas do mesmo jogo.
 - Nenhuma alteração foi feita nas tabelas ou políticas Supabase. A integração remota será feita após definir autenticação e armazenamento por instância.
