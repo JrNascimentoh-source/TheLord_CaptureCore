@@ -25,12 +25,12 @@
 
   function isBetDoPovoUrl(value) {
     const parsed = parseUrl(value);
-    return !!parsed && /(^|\\.)betdopovo\\.(co|com)$/i.test(parsed.hostname);
+    return !!parsed && /(^|\.)betdopovo\.(co|com)$/i.test(parsed.hostname);
   }
 
   function is7a7Url(value) {
     const parsed = parseUrl(value);
-    return !!parsed && /(^|\\.)7a7agent\\.com$/i.test(parsed.hostname);
+    return !!parsed && /(^|\.)7a7agent\.com$/i.test(parsed.hostname);
   }
 
   function gameFromUrl(value) {
@@ -203,9 +203,9 @@
       let raw = String(text || '')
         .trim()
         .replace(/[x×]$/i, '')
-        .replace(/\\s/g, '');
+        .replace(/\s/g, '');
 
-      if (!/^\\d[\\d.,]*$/.test(raw)) return NaN;
+      if (!/^\d[\d.,]*$/.test(raw)) return NaN;
 
       const dot = raw.lastIndexOf('.');
       const comma = raw.lastIndexOf(',');
@@ -216,11 +216,11 @@
           .split(decimal === '.' ? ',' : '.').join('')
           .replace(decimal, '.');
       } else if (comma >= 0) {
-        raw = /^\\d{1,3}(,\\d{3})+$/.test(raw)
+        raw = /^\d{1,3}(,\d{3})+$/.test(raw)
           ? raw.replace(/,/g, '')
           : raw.replace(',', '.');
-      } else if (/^\\d{1,3}(\\.\\d{3})+$/.test(raw)) {
-        raw = raw.replace(/\\./g, '');
+      } else if (/^\d{1,3}(\.\d{3})+$/.test(raw)) {
+        raw = raw.replace(/\./g, '');
       }
 
       return Number(raw);
@@ -237,7 +237,7 @@
       if (!elements.length) {
         const candidates = [...document.querySelectorAll('body *')].filter(element =>
           element.children.length === 0 &&
-          /^\\s*\\d[\\d.,\\s]*[x×]\\s*$/i.test(element.textContent || '') &&
+          /^\s*\d[\d.,\s]*[x×]\s*$/i.test(element.textContent || '') &&
           Number.isFinite(parseMultiplier(element.textContent))
         );
 
