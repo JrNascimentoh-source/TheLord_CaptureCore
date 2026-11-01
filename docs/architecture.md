@@ -23,8 +23,8 @@ Cada instância recebe um `id` próprio, além de `platformId`, `gameId`, `scree
 1. O usuário cadastra uma instância no dashboard.
 2. Ao clicar em **Abrir jogo e coletar**, o painel abre a URL em uma nova janela, acrescentando `_capturecore_instance` e `_capturecore_origin`.
 4. O jogo pode ser aberto em iframe quando a plataforma permite incorporação; se a plataforma bloquear iframe, o painel oferece abertura em janela externa vinculada. No modo iframe, os frames encaminham eventos ao frame superior e este ao painel por `window.parent.postMessage`; no modo janela externa, o coletor usa `window.opener.postMessage`. Ambos validam o origin exato do dashboard.
-5. O bridge só aceita eventos se `event.source` for exatamente a janela que o próprio painel registrou para aquele `instanceId`.
-6. Heartbeats atualizam Online/Off-line; eventos `round` atualizam o último resultado e o contador local daquela instância.
+4. O bridge só aceita eventos se `event.source` for exatamente a janela que o próprio painel registrou para aquele `instanceId`.
+5. Heartbeats atualizam Online/Off-line; eventos `round` atualizam o último resultado e o contador local daquela instância.
 
 ## Estados
 - `offline`: nenhum sinal recente conhecido.
