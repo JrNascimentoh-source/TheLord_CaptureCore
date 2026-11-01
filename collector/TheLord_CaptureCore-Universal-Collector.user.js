@@ -35,13 +35,12 @@
 
   function gameFromUrl(value) {
     const parsed = parseUrl(value);
-    if (!parsed) return 'aviator';
+    if (!parsed) return null;
     if (isBetDoPovoUrl(value)) {
       return 'aviator2';
     }
     if (is7a7Url(value)) return 'aviator';
-    // Mantém o fallback do fluxo atual para páginas intermediárias/frames Spribe.
-    return 'aviator';
+    return null;
   }
 
   function readCaptureConfig(value) {
@@ -58,6 +57,7 @@
   let topUrl = IS_ROOT ? SELF_URL : '';
   let instanceId = ROOT_CONFIG?.instanceId || '';
   let dashboardOrigin = ROOT_CONFIG?.dashboardOrigin || '';
+  let rootGame = null;
 
   function applyTopUrl(value) {
     topUrl = value;
@@ -90,7 +90,11 @@
     if (data.type === FRAME_EVENT &&
         typeof data.instanceId === 'string' && data.instanceId === instanceId) {
       // Cada nível de iframe retransmite o evento até a página principal vinculada.
-      if (IS_ROOT) sendToDashboard(data.kind, data.data);
+      if (IS_ROOT) {
+        // A página principal é a autoridade da plataforma. Nunca encaminha eventos
+        // de iframes que tenham classificado o jogo de forma diferente.
+        if (rootGame && data.data?.game === rootGame) sendToDashboard(data.kind, data.data);
+      }
       else {
         try { window.parent.postMessage(data, '*'); } catch (_) {}
       }
@@ -146,12 +150,10 @@
         if (topUrl) {
           clearInterval(wait);
           resolve(gameFromUrl(topUrl));
-        } else if (Date.now() - started > 4000) {
+        } else if (Date.now() - started > 10000) {
           clearInterval(wait);
-          const referrer = document.referrer || '';
-          if (isBetDoPovoUrl(SELF_URL)) resolve(gameFromUrl(SELF_URL));
-          else if (isBetDoPovoUrl(referrer)) resolve(gameFromUrl(referrer));
-          else resolve('aviator');
+          // Sem URL raiz confirmada, não assumir 7a7 por padrão.
+          resolve(null);
         }
       }, 200);
     });
@@ -160,6 +162,8 @@
   resolveGame().then(start);
 
   function start(GAME) {
+    if (GAME !== 'aviator' && GAME !== 'aviator2') return;
+    if (IS_ROOT) rootGame = GAME;
     const GAME_LABEL = GAME === 'aviator2' ? 'Aviator BdPv' : 'Aviator 7a7';
     const host = location.hostname;
     const signatureKey = 'thelord_capturecore_signature_v1_' + (instanceId || 'unlinked');
