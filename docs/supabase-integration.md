@@ -28,7 +28,7 @@ A tabela `velas` não contém `instance_id`, `screen_id` ou outra coluna de orig
 
 ## Direção recomendada
 
-Manter `public.velas` intacta nesta etapa e projetar armazenamento separado para o CaptureCore, por exemplo:
+Preservar o schema e o histórico de `public.velas`, mantendo a leitura pública e restringindo as novas inserções aos jogos ativos. Projetar armazenamento separado para o CaptureCore, por exemplo:
 
 - Cadastro de instâncias com identificador estável, plataforma, jogo, nome da tela e estado.
 - Registros capturados vinculados a `instance_id`, além de jogo, valor e timestamp.
