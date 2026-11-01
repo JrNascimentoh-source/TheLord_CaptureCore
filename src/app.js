@@ -2,8 +2,7 @@ import {InstanceStore} from "./core/instance-store.js?v=20261101-bdpv-only";
 import {SavedConfigStore} from "./core/saved-config-store.js";
 import {GAMES,PLATFORMS,isValidPair} from "./core/platform-registry.js?v=20261101-bdpv-only";
 import {CollectorBridge} from "./adapters/collector-bridge.js";
-import {SupabaseVelaRelay} from "./adapters/supabase-vela-relay.js";
-const store=new InstanceStore(), savedStore=new SavedConfigStore(), bridge=new CollectorBridge(), relay=new SupabaseVelaRelay(), screenFrames=new Map(), screenWindows=new Map(), $=s=>document.querySelector(s), activity=[];
+const store=new InstanceStore(), savedStore=new SavedConfigStore(), bridge=new CollectorBridge(), screenFrames=new Map(), screenWindows=new Map(), $=s=>document.querySelector(s), activity=[];
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function time(v){return v?new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"medium"}).format(new Date(v)):"Nenhum sinal recebido";}
 function log(message){activity.unshift({message,time:new Date()});activity.splice(8);renderActivity();}
@@ -123,9 +122,6 @@ function onCollectorEvent(detail){
   if(!Number.isFinite(value)||value<1||value>=1000000)return;
   const detectedAt=detail.data?.detectedAt||detail.receivedAt;
   store.recordRound(instance.id,{value,detectedAt,game:instance.gameId});
-  void relay.enqueue({game:instance.gameId,value,detectedAt}).then(result=>{
-   if(!result.ok)log("Vela mantida na fila de sincronização: "+instance.screenName);
-  });
   log("Vela capturada e encaminhada: "+value.toFixed(2)+"x · "+GAMES[instance.gameId].label);
  }
  render();
@@ -146,7 +142,7 @@ $("#instance-list").addEventListener("click",event=>{
  if(!item||!confirm('Remover a instância "'+item.screenName+'" deste navegador?'))return;
  closeScreen(item.id);store.remove(item.id);log("Instância removida: "+item.screenName);render();
 });
-bridge.connect();bridge.onCollectorEvent(onCollectorEvent);void relay.flush();setInterval(()=>void relay.flush(),15000);bridge.onDiagnostic(detail=>{
+bridge.connect();bridge.onCollectorEvent(onCollectorEvent);bridge.onDiagnostic(detail=>{
  const messages={origin:"Sinal do coletor rejeitado: domínio de origem diferente do cadastrado ("+detail.receivedOrigin+"; esperado "+detail.expectedOrigin+").",window:"Sinal recebido de uma janela diferente da tela registrada.",instance:"Sinal recebido com identificador de instância não registrado.",payload:"Sinal do coletor recebido com formato inválido."};
  log(messages[detail.reason]||"Falha na validação do sinal do coletor.");
 });render();renderSavedConfigs();
