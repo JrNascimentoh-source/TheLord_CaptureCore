@@ -52,7 +52,7 @@ function openModal(){$("#form-error").textContent="";updateGameOptions();$("#ins
 function closeModal(){$("#instance-modal").close();}
 function updateGameOptions(){
  const platformId=$("#platform").value,allowed=PLATFORMS[platformId].games,select=$("#game"),previous=select.value;
- select.innerHTML=allowed.map(id=>'<option value="'+id+'">'+GAMES[id].label+(id==="aviator2"?" (BetDoPovo)":id==="aviator"&&platformId==="7a7"?"":"")+'</option>').join("");
+ select.innerHTML=allowed.map(id=>'<option value="'+id+'">'+GAMES[id].label+'</option>').join("");
  if(allowed.includes(previous))select.value=previous;
 }
 function createInstance(event){
