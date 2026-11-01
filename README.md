@@ -71,7 +71,8 @@ Depois abra o endereço local informado pelo servidor. Para testar o userscript 
 - [x] Bridge com validação da janela que originou a mensagem.
 - [x] Universal Collector separado, com heartbeat e eventos de rodada.
 - [x] Resumo local de última vela e quantidade por instância.
-- [x] Testes do catálogo e isolamento do armazenamento local.
+- [x] Testes do catálogo, armazenamento local e isolamento do bridge.
+- [x] CI validado: testes automatizados e verificação sintática aprovados.
 - [x] Workflow de testes e publicação GitHub Pages.
 - [ ] Teste real em Firefox/Tampermonkey com várias telas.
 - [ ] Persistência compartilhada e autenticação.
