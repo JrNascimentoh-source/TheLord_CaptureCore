@@ -69,9 +69,11 @@
   }
 
   function sendToDashboard(kind, data) {
-    if (!IS_ROOT || !instanceId || dashboardOrigin !== APP_ORIGIN || window.parent === window) return;
+    if (!IS_ROOT || !instanceId || dashboardOrigin !== APP_ORIGIN) return;
+    const target = window.parent !== window ? window.parent : window.opener;
+    if (!target) return;
     try {
-      window.parent.postMessage({
+      target.postMessage({
         type: 'THELORD_CAPTURECORE_EVENT',
         version: 1,
         instanceId,
