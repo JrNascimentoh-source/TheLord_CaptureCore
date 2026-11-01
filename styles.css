@@ -178,3 +178,6 @@ body{padding:14px 14px 24px}.app{max-width:none;margin:0;padding-left:174px}
   .game-screen-frame{height:calc(100dvh - 170px);min-height:250px;max-height:none}
   body{padding-bottom:calc(86px + env(safe-area-inset-bottom))}
 }
+
+/* Navegação por telas: somente a seção selecionada fica visível. */
+main>section.card[hidden]{display:none!important}
