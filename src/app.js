@@ -64,6 +64,7 @@ function createInstance(event){
  }catch{$("#form-error").textContent="Informe uma URL válida (http ou https).";}
 }
 function openInstance(id){
+ window.captureCoreShowSection?.('game-screens');
  const item=store.list().find(entry=>entry.id===id);if(!item)return;
  const existing=screenFrames.get(item.id);if(existing?.isConnected){existing.closest(".game-screen")?.scrollIntoView({behavior:"smooth",block:"start"});return;}
  try{
