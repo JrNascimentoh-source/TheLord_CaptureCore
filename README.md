@@ -54,4 +54,4 @@ Depois abra o endereço local informado pelo servidor.
 ## Segurança e dados
 Nenhuma chave secreta deve ser incluída no frontend. A integração com o Supabase existente será implementada somente após inspeção do schema, políticas RLS e fluxo atual de gravação. Não execute scripts SQL antigos deste projeto como se fossem o schema atual.
 
-Consulte [docs/architecture.md](docs/architecture.md) para detalhes e decisões técnicas.
+Consulte [docs/architecture.md](docs/architecture.md) para detalhes e decisões técnicas e [docs/supabase-integration.md](docs/supabase-integration.md) para o schema real inspecionado e os requisitos de isolamento por instância.
