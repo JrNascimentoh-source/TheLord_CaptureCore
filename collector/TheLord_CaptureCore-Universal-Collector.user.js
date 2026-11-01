@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TheLord CaptureCore — Universal Collector
 // @namespace    thelord-capturecore
-// @version      0.2.0
+// @version      0.2.1
 // @description  Captura resultados Aviator por instância e envia eventos ao painel CaptureCore que abriu a tela
 // @match        *://*/*
 // @exclude      *://jrnascimentoh-source.github.io/*
@@ -124,71 +124,22 @@
     const host = location.hostname;
     const signatureKey = 'thelord_capturecore_signature_v1_' + (instanceId || 'unlinked');
 
-    // Modo gráfico: só ativa depois que a área real do jogo estiver renderizada.
-    // O caminho até o maior canvas é preservado; elementos irmãos externos são ocultados.
-    let focusApplied = false;
-    const focusStyle = document.createElement('style');
-    focusStyle.id = 'capturecore-game-focus-style';
-    focusStyle.textContent = [
-      'html,body{width:100%!important;height:100%!important;min-height:100%!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#000!important}',
-      'body.capturecore-game-focus>*:not([data-capturecore-game-path]){display:none!important}',
-      'body>[data-capturecore-game-root="1"]{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;transform:none!important;z-index:1!important}',
-      '[data-capturecore-game-path="1"] canvas{max-width:100%!important;max-height:100%!important}'
-    ].join('');
-    (document.head || document.documentElement).appendChild(focusStyle);
-
+    // Preserva o DOM do jogo: o histórico de resultados pode ficar fora do canvas.
     function silenceMedia() {
       document.querySelectorAll('audio,video').forEach(media => {
         try { media.muted = true; media.defaultMuted = true; media.volume = 0; } catch (_) {}
       });
     }
 
-    function applyGameFocus() {
-      if (focusApplied || !document.body) return;
-      const candidates = [...document.querySelectorAll('canvas')].filter(canvas => {
-        const rect = canvas.getBoundingClientRect();
-        const style = getComputedStyle(canvas);
-        return rect.width >= 240 && rect.height >= 140 &&
-          style.display !== 'none' && style.visibility !== 'hidden';
-      });
-      if (!candidates.length) return;
-      candidates.sort((a,b) => {
-        const ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect();
-        return rb.width*rb.height-ra.width*ra.height;
-      });
-      const gameCanvas = candidates[0];
-      let node = gameCanvas;
-      const path = [];
-      while (node && node !== document.body) {
-        path.push(node);
-        node = node.parentElement;
-      }
-      if (!path.length) return;
-      // Não aplicar se o canvas estiver dentro de um iframe ou de um componente minúsculo.
-      const rect = gameCanvas.getBoundingClientRect();
-      if (rect.width < 240 || rect.height < 140) return;
-      path.forEach((element) => {
-        [...element.parentElement.children].forEach(sibling => {
-          if (sibling !== element) sibling.style.setProperty('display','none','important');
-        });
-        element.dataset.capturecoreGamePath = '1';
-      });
-      path[path.length - 1].dataset.capturecoreGameRoot = '1';
-      document.body.classList.add('capturecore-game-focus');
-      focusApplied = true;
-      if (badge?.isConnected) badge.remove();
-    }
-
     silenceMedia();
     const mediaObserver = new MutationObserver(() => {
       silenceMedia();
-      if (!focusApplied) applyGameFocus();
+
     });
     mediaObserver.observe(document.documentElement, {childList:true,subtree:true});
     const focusTimer = setInterval(() => {
       silenceMedia();
-      applyGameFocus();
-      if (focusApplied) clearInterval(focusTimer);
+
     }, 1200);
     const badge = document.createElement('div');
     badge.style.cssText = 'position:fixed;bottom:4px;left:4px;z-index:2147483647;background:#000c;color:#ffc72c;font:11px sans-serif;padding:3px 6px;border-radius:6px;pointer-events:none';
@@ -218,7 +169,7 @@
         '[class*="payout"] [class*="multiplier"], .result-history .bubble-multiplier'
       )];
       if (!elements.length) {
-        const candidates = [...document.querySelectorAll('div,span')].filter(element =>
+        const candidates = [...document.querySelectorAll('body *')].filter(element =>
           element.children.length === 0 &&
           /^\s*\d[\d.,\s]*[x×]\s*$/i.test(element.textContent || '') &&
           Number.isFinite(parseMultiplier(element.textContent))
